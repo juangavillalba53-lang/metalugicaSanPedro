@@ -1139,6 +1139,14 @@
         <img src="img/extrusora-detalle.jpeg" alt="Detalle de extrusora" />
         <div class="galeria-overlay"></div>
       </div>
+      <div class="galeria-item">
+        <img src="img/galpon-produccion.jpeg" alt="Galpón de producción" />
+        <div class="galeria-overlay"></div>
+      </div>
+      <div class="galeria-item">
+        <img src="img/operario-produccion.jpeg" alt="Operario en producción" />
+        <div class="galeria-overlay"></div>
+      </div>
     </div>
   </section>
 
@@ -1314,6 +1322,51 @@
       const texto = `Hola Metalúrgica San Pedro! 👋\n\n*Nombre:* ${nombre}\n*Teléfono:* ${tel || '-'}\n*Localidad:* ${loc || '-'}\n*Producto:* ${prod || '-'}\n*Mensaje:* ${msg || '-'}`;
       window.open('https://wa.me/5493743413177?text=' + encodeURIComponent(texto), '_blank');
     }
+
+    // LIGHTBOX
+    const lb = document.createElement('div');
+    lb.style.cssText = 'display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.93);align-items:center;justify-content:center;';
+    lb.innerHTML = `
+      <span id="lb-close" style="position:absolute;top:16px;right:24px;color:#fff;font-size:2.5rem;cursor:pointer;line-height:1;user-select:none;">×</span>
+      <span id="lb-prev" style="position:absolute;left:16px;color:#fff;font-size:3rem;cursor:pointer;user-select:none;padding:10px;">&#8249;</span>
+      <img id="lb-img" style="max-width:92vw;max-height:90vh;object-fit:contain;display:block;" />
+      <span id="lb-next" style="position:absolute;right:16px;color:#fff;font-size:3rem;cursor:pointer;user-select:none;padding:10px;">&#8250;</span>
+    `;
+    document.body.appendChild(lb);
+
+    const items = Array.from(document.querySelectorAll('.galeria-item'));
+    const imgs = items.map(el => el.querySelector('img').src);
+    let idx = 0;
+
+    function lbOpen(i) {
+      idx = i;
+      document.getElementById('lb-img').src = imgs[idx];
+      lb.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+    function lbClose() {
+      lb.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    function lbPrev() { idx = (idx - 1 + imgs.length) % imgs.length; document.getElementById('lb-img').src = imgs[idx]; }
+    function lbNext() { idx = (idx + 1) % imgs.length; document.getElementById('lb-img').src = imgs[idx]; }
+
+    items.forEach((item, i) => {
+      item.style.cursor = 'zoom-in';
+      item.addEventListener('click', () => lbOpen(i));
+    });
+
+    document.getElementById('lb-close').addEventListener('click', e => { e.stopPropagation(); lbClose(); });
+    document.getElementById('lb-prev').addEventListener('click', e => { e.stopPropagation(); lbPrev(); });
+    document.getElementById('lb-next').addEventListener('click', e => { e.stopPropagation(); lbNext(); });
+    lb.addEventListener('click', e => { if (e.target === lb) lbClose(); });
+
+    document.addEventListener('keydown', e => {
+      if (lb.style.display === 'none') return;
+      if (e.key === 'Escape') lbClose();
+      if (e.key === 'ArrowLeft') lbPrev();
+      if (e.key === 'ArrowRight') lbNext();
+    });
   </script>
 
 </body>
